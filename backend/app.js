@@ -51,6 +51,7 @@ app.use(
       "X-Requested-With",
     ],
     exposedHeaders: ["set-cookie"],
+    maxAge: 86400, // 24 hours for preflight cache
   })
 );
 
