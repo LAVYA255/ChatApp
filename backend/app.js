@@ -27,6 +27,8 @@ const ALLOWED_ORIGINS = parseOrigins(process.env.ALLOWED_ORIGINS);
 const corsOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
+  "http://localhost:5174",
+  "http://127.0.0.1:5174",
   FRONTEND_URL,
   ...ALLOWED_ORIGINS,
 ].filter(Boolean);
@@ -37,6 +39,7 @@ app.use(
       // Allow requests with no origin like mobile apps or curl
       if (!origin) return callback(null, true);
       if (corsOrigins.includes(origin)) return callback(null, true);
+      console.warn(`CORS blocked origin: ${origin}`);
       return callback(new Error("CORS not allowed for this origin"), false);
     },
     credentials: true,
