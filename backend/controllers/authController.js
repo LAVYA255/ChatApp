@@ -27,7 +27,8 @@ export const signup = async (req, res) => {
       tokenGeneration(newUser._id, res);
       const safeUser = newUser.toObject();
       delete safeUser.password;
-      res.json(safeUser);
+      // Include token in response for localStorage storage
+      return res.json({ ...safeUser, token: res.locals.token });
     }
   } catch (error) {
     console.log("error in signup", error.message);
@@ -46,10 +47,11 @@ export const login = async (req, res) => {
     if (!ispassword) {
       return res.status(400).json({ message: "incorrect password" });
     }
-  tokenGeneration(user._id, res);
-  const safeUser = user.toObject();
-  delete safeUser.password;
-  res.status(200).json(safeUser);
+    tokenGeneration(user._id, res);
+    const safeUser = user.toObject();
+    delete safeUser.password;
+    // Include token in response for localStorage storage
+    return res.status(200).json({ ...safeUser, token: res.locals.token });
   } catch (error) {
     console.log("error in login", error.message);
     res.status(500).json({ message: "internal server error" });

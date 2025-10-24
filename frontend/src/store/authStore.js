@@ -10,6 +10,11 @@ export const authStore = create((set, get) => ({
   
   checkAuth: async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("No token in localStorage");
+        return;
+      }
       const res = await axiosInstance.get("/auth/check");
       if (res.data) {
         set({ loggedUser: res.data });
@@ -17,6 +22,7 @@ export const authStore = create((set, get) => ({
       }
     } catch (error) {
       console.log("Not authenticated");
+      localStorage.removeItem("token");
     }
   },
 
@@ -24,6 +30,10 @@ export const authStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/signup", data);
       set({ loggedUser: res.data });
+      // Store token in localStorage for cross-domain requests
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+      }
       toast.success("Signup successfull");
       get().connectSocket();
     } catch (error) {
@@ -36,6 +46,10 @@ export const authStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/login", data);
       set({ loggedUser: res.data });
+      // Store token in localStorage for cross-domain requests
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+      }
       toast.success("Login successfull");
       get().connectSocket();
     } catch (error) {
@@ -49,6 +63,7 @@ export const authStore = create((set, get) => ({
     try {
       await axiosInstance.get("/auth/logout");
       set({ loggedUser: null });
+      localStorage.removeItem("token");
       toast.success("Logout successful");
       get().disconnectSocket();
     } catch (error) {

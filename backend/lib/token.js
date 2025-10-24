@@ -8,19 +8,20 @@ export const tokenGeneration = (userId, res) => {
     expiresIn: "7d",
   });
 
+  // Return token in response body (frontend will store in localStorage)
+  // Also set cookie for backward compatibility, but token in body is primary
   const isProd = process.env.NODE_ENV === "production";
-  // For Vercel → Render cross-domain setup:
-  // - In production: use SameSite=None + Secure for cross-site cookies
-  // - In dev: use Lax for localhost
   const cookieOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: true, // HTTPS required (Vercel & Render both have HTTPS)
-    sameSite: isProd ? "none" : "lax", // "none" allows cross-site; "lax" for localhost
+    secure: true,
+    sameSite: isProd ? "none" : "lax",
     path: "/",
-    domain: undefined, // Don't set explicit domain; let browser handle it
   };
 
   res.cookie("jwt", token, cookieOptions);
-  console.log("✓ Cookie set with options:", { sameSite: cookieOptions.sameSite, secure: cookieOptions.secure });
+  console.log("✓ Token generated and cookie set");
+  
+  // Return token in response so frontend can store it
+  res.locals.token = token;
 };
