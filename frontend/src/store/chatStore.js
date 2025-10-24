@@ -14,6 +14,7 @@ export const chatStore = create((set, get) => ({
       set({ users: res.data });
       toast.success("Users fetched successfully");
     } catch (error) {
+      console.error("getUsers error:", error.response?.data || error.message);
       toast.error("Failed to fetch users.");
     }
   },
