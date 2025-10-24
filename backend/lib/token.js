@@ -9,14 +9,18 @@ export const tokenGeneration = (userId, res) => {
   });
 
   const isProd = process.env.NODE_ENV === "production";
-  // Use secure cross-site cookies in production when frontend and backend are on different domains
+  // For cross-domain cookies (Vercel frontend → Render backend):
+  // - secure: true (requires HTTPS, which both Vercel and Render provide)
+  // - sameSite: "none" (allows cross-site cookies)
+  // - path: "/" (available to all routes)
   const cookieOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: isProd,
+    secure: true, // Always true for HTTPS (local HTTPS won't work, but Vercel/Render both use HTTPS)
     sameSite: isProd ? "none" : "lax",
     path: "/",
   };
 
   res.cookie("jwt", token, cookieOptions);
+  console.log("Cookie set:", { name: "jwt", secure: cookieOptions.secure, sameSite: cookieOptions.sameSite });
 };
