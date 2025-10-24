@@ -67,15 +67,17 @@ export const authStore = create((set, get) => ({
 
   connectSocket: () => {
     const { loggedUser } = get();
-    const socket = io(import.meta.env.VITE_BACKEND_URL, {
+    const socketUrl =
+      import.meta.env.VITE_SOCKET_URL ||
+      import.meta.env.VITE_API_URL ||
+      window.location.origin;
+    const socket = io(socketUrl, {
       query: { userId: loggedUser._id },
       withCredentials: true,
     });
-    socket.connect();
     set({ socket: socket });
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
-      console.log(userIds);
     });
   },
 
@@ -83,4 +85,3 @@ export const authStore = create((set, get) => ({
     if (get().socket?.connected) get().socket.disconnect();
   },
 }));
-``

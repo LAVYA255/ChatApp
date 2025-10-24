@@ -12,6 +12,9 @@
   "type": "module",
   "license": "ISC",
   "description": "",
+  "engines": {
+    "node": ">=18.17 <23"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",

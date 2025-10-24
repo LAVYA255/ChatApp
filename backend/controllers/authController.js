@@ -25,7 +25,9 @@ export const signup = async (req, res) => {
     await newUser.save();
     if (newUser) {
       tokenGeneration(newUser._id, res);
-      res.json(newUser);
+      const safeUser = newUser.toObject();
+      delete safeUser.password;
+      res.json(safeUser);
     }
   } catch (error) {
     console.log("error in signup", error.message);
@@ -44,8 +46,10 @@ export const login = async (req, res) => {
     if (!ispassword) {
       return res.status(400).json({ message: "incorrect password" });
     }
-    tokenGeneration(user._id, res);
-    res.status(200).json(user);
+  tokenGeneration(user._id, res);
+  const safeUser = user.toObject();
+  delete safeUser.password;
+  res.status(200).json(safeUser);
   } catch (error) {
     console.log("error in login", error.message);
     res.status(500).json({ message: "internal server error" });
@@ -54,7 +58,14 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
+    const isProd = process.env.NODE_ENV === "production";
+    res.cookie("jwt", "", {
+      maxAge: 0,
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      path: "/",
+    });
     res.status(200).json({ message: "logged out successfully" });
   } catch (error) {
     console.log("error in logout", error.message);
@@ -77,7 +88,9 @@ export const updateProfile = async (req, res) => {
       { profilepic: uploadImage.secure_url },
       { new: true }
     );
-    res.status(200).json(updateUser);
+    const safeUser = updateUser?.toObject?.() ? updateUser.toObject() : updateUser;
+    if (safeUser && safeUser.password) delete safeUser.password;
+    res.status(200).json(safeUser);
   } catch (error) {
     res
       .status(500)
